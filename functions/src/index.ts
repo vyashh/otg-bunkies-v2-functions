@@ -6,6 +6,7 @@ const generateSchedule = (event: any) => {
   // const data = event.data?.data();
   // const members = data.members; // GET members from data (default to empty list)
   console.log("id " + event.id);
+  console.log(event.id + " " + event.members)
   // FETCH tasks from subcollection "houses/{docId}/tasks"
   // CONVERT tasks to a list of objects
   // IF no tasks exist:
