@@ -1,6 +1,8 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { getFirestore } from "firebase-admin/firestore";
+import { initializeApp } from "firebase-admin/app";
 
 const generateSchedule = (event: any) => {
   // const data = event.data?.data();
@@ -36,4 +38,30 @@ export const createSchedule = onDocumentCreated("houses/{docId}", (event) => {
 export const helloWorld = onRequest((request, response) => {
   logger.info("Hello logs!", { structuredData: true });
   response.send("Hello from Firebase!");
+});
+
+export const seedHouse = onRequest(async (request, response) => {
+  initializeApp();
+
+  const db = getFirestore();
+  try {
+    const houseData = {
+      name: "Student House 1",
+      members: ["Alice", "Bob", "Charlie", "Dave"],
+      tasks: {
+        bathroom: "Alice",
+        kitchen: "Bob",
+      },
+      createdAt: new Date(),
+    };
+
+    const docRef = await db.collection("houses").add(houseData);
+    logger.info(`House document created with ID: ${docRef.id}`);
+    response.json({ message: "House document created!", id: docRef.id });
+
+    
+  } catch (error) {
+    logger.error("Error creating house document:", error);
+    response.status(500).json({ error: "Failed to create document" });
+  }
 });
