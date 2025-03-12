@@ -5,16 +5,22 @@ import { getFirestore } from "firebase-admin/firestore";
 import { initializeApp } from "firebase-admin/app";
 
 const generateSchedule = (event: any) => {
-  // const data = event.data?.data();
+  const data = event.data?.data();
   // const members = data.members; // GET members from data (default to empty list)
-  console.log("id " + event.id);
-  console.log(event.id + " " + event.members)
+  // console.log("id " + data.uid);
+  console.log(event.data.id + " " + data.members);
   // FETCH tasks from subcollection "houses/{docId}/tasks"
   // CONVERT tasks to a list of objects
+
   // IF no tasks exist:
   //     PRINT "No tasks found."
   //     RETURN
+
+  // if no tasks exists return
+  if (!data.tasks) return;
+
   // GET current week number
+
   // INITIALIZE empty schedule object
   // FOR each member in members:
   //     ASSIGN tasks in a rotating manner based on index
@@ -28,7 +34,7 @@ export const createSchedule = onDocumentCreated("houses/{docId}", (event) => {
   const data = event.data?.data();
   if (!data?.schedule) {
     console.log("schedule is missing");
-    generateSchedule(event.data);
+    generateSchedule(event);
   }
   if (!data) return;
 
@@ -48,18 +54,13 @@ export const seedHouse = onRequest(async (request, response) => {
     const houseData = {
       name: "Student House 1",
       members: ["Alice", "Bob", "Charlie", "Dave"],
-      tasks: {
-        bathroom: "Alice",
-        kitchen: "Bob",
-      },
+      tasks: ["bathroom", "kitchen"],
       createdAt: new Date(),
     };
 
     const docRef = await db.collection("houses").add(houseData);
     logger.info(`House document created with ID: ${docRef.id}`);
     response.json({ message: "House document created!", id: docRef.id });
-
-    
   } catch (error) {
     logger.error("Error creating house document:", error);
     response.status(500).json({ error: "Failed to create document" });
